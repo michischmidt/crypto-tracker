@@ -1,28 +1,28 @@
-import { env } from "@/env"
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { env } from "@/env";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   saveSymbolsToCache,
   getSymbolsFromCache,
   isSymbolsCacheValid,
-} from "@/utils/localstorage-helper"
+} from "@/utils/localstorage-helper";
 
 export type Coin = {
-  id: string
-  symbol: string
-  name: string
-  image?: string
-}
+  id: string;
+  symbol: string;
+  name: string;
+  image?: string;
+};
 
 export type CoinGeckoSymbol = {
-  id: string
-  symbol: string
-  name: string
-  image: string
-  current_price: number
-  market_cap: number
-  market_cap_rank: number
-  price_change_percentage_24h: number
-}
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  price_change_percentage_24h: number;
+};
 
 export const symbolsApiSlice = createApi({
   reducerPath: "symbolsApi",
@@ -39,10 +39,10 @@ export const symbolsApiSlice = createApi({
       async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
         // first check if we have valid cached data
         if (isSymbolsCacheValid()) {
-          const cachedData = getSymbolsFromCache()
+          const cachedData = getSymbolsFromCache();
           if (cachedData?.data && cachedData.data.length > 0) {
-            console.log("Using cached symbols data")
-            return { data: cachedData.data }
+            console.log("Using cached symbols data");
+            return { data: cachedData.data };
           }
         }
 
@@ -50,10 +50,10 @@ export const symbolsApiSlice = createApi({
         try {
           const response = await fetchWithBQ(
             "coins/markets?vs_currency=usd&order=market_cap_desc",
-          )
+          );
 
           if (response.error) {
-            return { error: response.error }
+            return { error: response.error };
           }
 
           const transformedData = (response.data as CoinGeckoSymbol[]).map(
@@ -63,19 +63,19 @@ export const symbolsApiSlice = createApi({
               name: coin.name,
               image: coin.image,
             }),
-          )
+          );
 
-          saveSymbolsToCache(transformedData)
+          saveSymbolsToCache(transformedData);
 
-          return { data: transformedData }
+          return { data: transformedData };
         } catch (error) {
           // if API fails, try to use even expired cache as fallback
-          const cachedData = getSymbolsFromCache()
+          const cachedData = getSymbolsFromCache();
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               "API request failed, using expired cached data as fallback",
-            )
-            return { data: cachedData.data }
+            );
+            return { data: cachedData.data };
           }
 
           return {
@@ -83,12 +83,12 @@ export const symbolsApiSlice = createApi({
               status: "FETCH_ERROR",
               error: String(error),
             },
-          }
+          };
         }
       },
       providesTags: ["Symbols"],
     }),
   }),
-})
+});
 
-export const { useGetCoinsQuery, useGetTopCoinsQuery } = symbolsApiSlice
+export const { useGetCoinsQuery, useGetTopCoinsQuery } = symbolsApiSlice;

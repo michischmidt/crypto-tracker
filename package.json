@@ -60,6 +60,7 @@
     "globals": "^16.0.0",
     "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tw-animate-css": "^1.2.9",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.29.0",

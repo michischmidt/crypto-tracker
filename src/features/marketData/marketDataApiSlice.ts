@@ -1,22 +1,22 @@
-import { env } from "@/env"
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import type { TimePeriod } from "@/shared/types/intervals"
+import { env } from "@/env";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { TimePeriod } from "@/shared/types/intervals";
 import {
   saveMarketDataToLocalStorageCache,
   getMarketDataFromLocalStorageCache,
   isMarketDataCacheValid,
-} from "@/utils/localstorage-helper"
-import { getTimePeriodDays } from "@/utils/interval-helper"
+} from "@/utils/localstorage-helper";
+import { getTimePeriodDays } from "@/utils/interval-helper";
 
 export type MarketData = {
-  timestamp: number
-  price: number
-  date: string // ISO date
-}
+  timestamp: number;
+  price: number;
+  date: string; // ISO date
+};
 
 type CoinGeckoMarketChartResponse = {
-  prices: [number, number][] // [timestamp, price] pairs
-}
+  prices: [number, number][]; // [timestamp, price] pairs
+};
 
 export const marketDataApiSlice = createApi({
   reducerPath: "marketDataApi",
@@ -30,25 +30,25 @@ export const marketDataApiSlice = createApi({
       { coinId: string; timePeriod: TimePeriod }
     >({
       async queryFn(arg, _queryApi, _extraOptions, fetchWithBQ) {
-        const { coinId, timePeriod } = arg
+        const { coinId, timePeriod } = arg;
 
         // first check if we have valid cached data
         if (isMarketDataCacheValid(coinId, timePeriod)) {
           const cachedData = getMarketDataFromLocalStorageCache(
             coinId,
             timePeriod,
-          )
+          );
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               `Using cached market data for ${coinId} (${timePeriod})`,
-            )
-            return { data: cachedData.data }
+            );
+            return { data: cachedData.data };
           }
         }
 
         // if no valid cache, fetch from API
         try {
-          const days = getTimePeriodDays(timePeriod)
+          const days = getTimePeriodDays(timePeriod);
 
           // fetch day to day market data
           const response = await fetchWithBQ(
@@ -57,13 +57,13 @@ export const marketDataApiSlice = createApi({
               "/market_chart?vs_currency=usd&days=" +
               days.toString() +
               "&interval=daily",
-          )
+          );
 
           if (response.error) {
-            return { error: response.error }
+            return { error: response.error };
           }
 
-          const data = response.data as CoinGeckoMarketChartResponse
+          const data = response.data as CoinGeckoMarketChartResponse;
 
           // transform in our marke data format for chart
           const transformedData = data.prices.map(
@@ -72,22 +72,26 @@ export const marketDataApiSlice = createApi({
               price,
               date: new Date(timestamp).toISOString(),
             }),
-          )
+          );
 
-          saveMarketDataToLocalStorageCache(coinId, timePeriod, transformedData)
+          saveMarketDataToLocalStorageCache(
+            coinId,
+            timePeriod,
+            transformedData,
+          );
 
-          return { data: transformedData }
+          return { data: transformedData };
         } catch (error) {
           // if API fails, try to use even expired cache as fallback
           const cachedData = getMarketDataFromLocalStorageCache(
             coinId,
             timePeriod,
-          )
+          );
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               `API request failed, using expired cached data as fallback for ${coinId} (${timePeriod})`,
-            )
-            return { data: cachedData.data }
+            );
+            return { data: cachedData.data };
           }
 
           return {
@@ -95,7 +99,7 @@ export const marketDataApiSlice = createApi({
               status: "FETCH_ERROR",
               error: String(error),
             },
-          }
+          };
         }
       },
       providesTags: (_result, _error, arg) => [
@@ -103,6 +107,6 @@ export const marketDataApiSlice = createApi({
       ],
     }),
   }),
-})
+});
 
-export const { useGetMarketDataQuery } = marketDataApiSlice
+export const { useGetMarketDataQuery } = marketDataApiSlice;

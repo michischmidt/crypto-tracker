@@ -1,18 +1,18 @@
-import { Chart } from "./Chart"
-import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { Chart } from "./Chart";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   selectSelectedTimePeriod,
   setSelectedTimePeriod,
-} from "@/features/marketData/marketDataSlice"
-import type { TimePeriod } from "@/shared/types/intervals"
+} from "@/features/marketData/marketDataSlice";
+import type { TimePeriod } from "@/shared/types/intervals";
 
 export default function ChartContainer() {
-  const dispatch = useAppDispatch()
-  const selectedPeriod = useAppSelector(selectSelectedTimePeriod)
+  const dispatch = useAppDispatch();
+  const selectedPeriod = useAppSelector(selectSelectedTimePeriod);
 
   const handlePeriodChange = (period: TimePeriod) => {
-    dispatch(setSelectedTimePeriod(period))
-  }
+    dispatch(setSelectedTimePeriod(period));
+  };
 
   return (
     <div className="w-full">
@@ -21,5 +21,5 @@ export default function ChartContainer() {
         onPeriodChange={handlePeriodChange}
       />
     </div>
-  )
+  );
 }

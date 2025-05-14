@@ -6,7 +6,7 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
-} from "recharts"
+} from "recharts";
 
 import {
   Card,
@@ -14,18 +14,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import type { ChartConfig } from "@/components/ui/chart"
-import { ChartContainer as UIChartContainer } from "@/components/ui/chart"
-import { ChartTools } from "./ChartTools"
-import type { TimePeriod } from "@/shared/types/intervals"
-import { useGetMarketDataQuery } from "@/features/marketData/marketDataApiSlice"
-import { useAppSelector } from "@/app/hooks"
+} from "@/components/ui/card";
+import type { ChartConfig } from "@/components/ui/chart";
+import { ChartContainer as UIChartContainer } from "@/components/ui/chart";
+import { ChartTools } from "./ChartTools";
+import type { TimePeriod } from "@/shared/types/intervals";
+import { useGetMarketDataQuery } from "@/features/marketData/marketDataApiSlice";
+import { useAppSelector } from "@/app/hooks";
 import {
   selectSelectedSymbol,
   selectSelectedId,
-} from "@/features/symbols/symbolsSlice"
-import { Loader2 } from "lucide-react"
+} from "@/features/symbols/symbolsSlice";
+import { Loader2 } from "lucide-react";
 
 const chartConfig = {
   views: {
@@ -35,16 +35,16 @@ const chartConfig = {
     label: "Price",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 type ChartProps = {
-  selectedPeriod: TimePeriod
-  onPeriodChange: (period: TimePeriod) => void
-}
+  selectedPeriod: TimePeriod;
+  onPeriodChange: (period: TimePeriod) => void;
+};
 
 export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
-  const selectedSymbol = useAppSelector(selectSelectedSymbol)
-  const selectedId = useAppSelector(selectSelectedId)
+  const selectedSymbol = useAppSelector(selectSelectedSymbol);
+  const selectedId = useAppSelector(selectSelectedId);
   const {
     data: marketData,
     isLoading,
@@ -52,17 +52,17 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
   } = useGetMarketDataQuery({
     coinId: selectedId,
     timePeriod: selectedPeriod,
-  })
+  });
 
   const formattedData =
     marketData?.map(item => ({
       date: item.date.split("T")[0], // Just the date part of ISO string
       price: item.price,
-    })) ?? []
+    })) ?? [];
 
   return (
     <Card>
-      <CardHeader className="flex flex-col md:flex-row md:items-center border-b p-0 gap-4">
+      <CardHeader className="flex flex-col gap-4 border-b p-0 md:flex-row md:items-center">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-4">
           <CardTitle>{selectedSymbol} Price Chart</CardTitle>
           <CardDescription>
@@ -77,15 +77,15 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         {isLoading ? (
-          <div className="flex justify-center items-center h-[400px]">
-            <Loader2 className="size-8 animate-spin text-primary" />
+          <div className="flex h-[400px] items-center justify-center">
+            <Loader2 className="text-primary size-8 animate-spin" />
           </div>
         ) : error ? (
-          <div className="flex justify-center items-center h-[400px] text-destructive">
+          <div className="text-destructive flex h-[400px] items-center justify-center">
             Error loading market data. Please try again.
           </div>
         ) : formattedData.length === 0 ? (
-          <div className="flex justify-center items-center h-[400px] text-muted-foreground">
+          <div className="text-muted-foreground flex h-[400px] items-center justify-center">
             No market data available for {selectedSymbol}.
           </div>
         ) : (
@@ -111,11 +111,11 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
                   tickMargin={8}
                   minTickGap={32}
                   tickFormatter={(value: string) => {
-                    const date = new Date(value)
+                    const date = new Date(value);
                     return date.toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
-                    })
+                    });
                   }}
                 />
                 <YAxis
@@ -139,12 +139,12 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
                     "Price",
                   ]}
                   labelFormatter={(label: string) => {
-                    const date = new Date(label)
+                    const date = new Date(label);
                     return date.toLocaleDateString("en-US", {
                       month: "long",
                       day: "numeric",
                       year: "numeric",
-                    })
+                    });
                   }}
                 />
                 <Line
@@ -163,5 +163,5 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

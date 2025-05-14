@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -6,54 +6,54 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { cn } from "@/lib/utils"
-import type { Coin } from "@/features/symbols/symbolsApiSlice"
-import { useGetTopCoinsQuery } from "@/features/symbols/symbolsApiSlice"
-import { ChevronsUpDown, Check, Loader2 } from "lucide-react"
-import { useState } from "react"
-import { useAppDispatch, useAppSelector } from "@/app/hooks"
+} from "@/components/ui/popover";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/lib/utils";
+import type { Coin } from "@/features/symbols/symbolsApiSlice";
+import { useGetTopCoinsQuery } from "@/features/symbols/symbolsApiSlice";
+import { ChevronsUpDown, Check, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   selectSelectedId,
   setSelectedSymbol,
-} from "@/features/symbols/symbolsSlice"
-import type { TimePeriod } from "@/shared/types/intervals"
+} from "@/features/symbols/symbolsSlice";
+import type { TimePeriod } from "@/shared/types/intervals";
 
 type ChartToolsProps = {
-  selectedPeriod: TimePeriod
-  onPeriodChange: (period: TimePeriod) => void
-}
+  selectedPeriod: TimePeriod;
+  onPeriodChange: (period: TimePeriod) => void;
+};
 
 export const ChartTools = ({
   selectedPeriod,
   onPeriodChange,
 }: ChartToolsProps) => {
-  const dispatch = useAppDispatch()
-  const [open, setOpen] = useState(false)
-  const selectedId = useAppSelector(selectSelectedId)
-  const { data: coins, isLoading } = useGetTopCoinsQuery(undefined)
-  const selectedCoin = coins?.find(coin => coin.id === selectedId)
+  const dispatch = useAppDispatch();
+  const [open, setOpen] = useState(false);
+  const selectedId = useAppSelector(selectSelectedId);
+  const { data: coins, isLoading } = useGetTopCoinsQuery(undefined);
+  const selectedCoin = coins?.find(coin => coin.id === selectedId);
 
   const handleSymbolSelect = (coinId: string, coinSymbol: string) => {
-    dispatch(setSelectedSymbol({ id: coinId, symbol: coinSymbol }))
-    setOpen(false)
-  }
+    dispatch(setSelectedSymbol({ id: coinId, symbol: coinSymbol }));
+    setOpen(false);
+  };
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-4 p-4 md:pr-6 md:py-4">
+    <div className="flex flex-col items-center gap-4 p-4 md:flex-row md:py-4 md:pr-6">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[160px] md:w-[180px] justify-between"
+            className="w-[160px] justify-between md:w-[180px]"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -70,7 +70,7 @@ export const ChartTools = ({
                         <img
                           src={selectedCoin.image}
                           alt={selectedCoin.name}
-                          className="size-4 mr-2"
+                          className="mr-2 size-4"
                         />
                       )}
                       {selectedCoin.symbol}
@@ -95,7 +95,7 @@ export const ChartTools = ({
                     key={coin.id}
                     value={coin.id}
                     onSelect={() => {
-                      handleSymbolSelect(coin.id, coin.symbol)
+                      handleSymbolSelect(coin.id, coin.symbol);
                     }}
                   >
                     <div className="flex items-center">
@@ -109,11 +109,11 @@ export const ChartTools = ({
                         <img
                           src={coin.image}
                           alt={coin.name}
-                          className="size-4 mr-2"
+                          className="mr-2 size-4"
                         />
                       )}
-                      <span className="font-bold mr-2">{coin.symbol}</span>
-                      <span className="text-muted-foreground text-sm truncate">
+                      <span className="mr-2 font-bold">{coin.symbol}</span>
+                      <span className="text-muted-foreground truncate text-sm">
                         {coin.name}
                       </span>
                     </div>
@@ -129,7 +129,7 @@ export const ChartTools = ({
         className="md:ml-2"
         value={selectedPeriod}
         onValueChange={value => {
-          if (value) onPeriodChange(value as TimePeriod)
+          if (value) onPeriodChange(value as TimePeriod);
         }}
       >
         <ToggleGroupItem value="week">Week</ToggleGroupItem>
@@ -137,5 +137,5 @@ export const ChartTools = ({
         <ToggleGroupItem value="year">Year</ToggleGroupItem>
       </ToggleGroup>
     </div>
-  )
-}
+  );
+};
