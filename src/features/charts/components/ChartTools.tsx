@@ -14,35 +14,36 @@ import {
 } from "@/components/ui/popover"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
-import { ChevronsUpDown, Check } from "lucide-react"
+import type { Coin } from "@/features/symbols/symbolsApiSlice"
+import { useGetTopCoinsQuery } from "@/features/symbols/symbolsApiSlice"
+import { ChevronsUpDown, Check, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import {
+  selectSelectedId,
+  setSelectedSymbol,
+} from "@/features/symbols/symbolsSlice"
+import { PeriodType } from "../components/ChartContainer"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
+type ChartToolsProps = {
+  selectedPeriod: PeriodType
+  onPeriodChange: (period: PeriodType) => void
+}
 
-export const ChartTools = () => {
+export const ChartTools = ({
+  selectedPeriod,
+  onPeriodChange,
+}: ChartToolsProps) => {
+  const dispatch = useAppDispatch()
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
+  const selectedId = useAppSelector(selectSelectedId)
+  const { data: coins, isLoading } = useGetTopCoinsQuery(undefined)
+  const selectedCoin = coins?.find(coin => coin.id === selectedId)
+
+  const handleSymbolSelect = (coinId: string, coinSymbol: string) => {
+    dispatch(setSelectedSymbol({ id: coinId, symbol: coinSymbol }))
+    setOpen(false)
+  }
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-4 p-4 md:pr-6 md:py-4">
@@ -53,35 +54,69 @@ export const ChartTools = () => {
             role="combobox"
             aria-expanded={open}
             className="w-[160px] md:w-[180px] justify-between"
+            disabled={isLoading}
           >
-            {value
-              ? frameworks.find(framework => framework.value === value)?.label
-              : "Select Symbol..."}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                <>
+                  {selectedCoin ? (
+                    <div className="flex items-center">
+                      {selectedCoin.image && (
+                        <img
+                          src={selectedCoin.image}
+                          alt={selectedCoin.name}
+                          className="size-4 mr-2"
+                        />
+                      )}
+                      {selectedCoin.symbol}
+                    </div>
+                  ) : (
+                    "Select Symbol..."
+                  )}
+                </>
+                <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+              </>
+            )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[180px] p-0">
+        <PopoverContent className="w-[240px] p-0">
           <Command>
             <CommandInput placeholder="Search Symbols..." />
-            <CommandList>
+            <CommandList className="max-h-[300px]">
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
-                {frameworks.map(framework => (
+                {coins?.map((coin: Coin) => (
                   <CommandItem
-                    key={framework.value}
-                    value={framework.value}
-                    onSelect={currentValue => {
-                      setValue(currentValue === value ? "" : currentValue)
-                      setOpen(false)
+                    key={coin.id}
+                    value={coin.id}
+                    onSelect={() => {
+                      handleSymbolSelect(coin.id, coin.symbol)
                     }}
                   >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === framework.value ? "opacity-100" : "opacity-0",
+                    <div className="flex items-center">
+                      <Check
+                        className={cn(
+                          "mr-2 size-4",
+                          selectedId === coin.id ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                      {coin.image && (
+                        <img
+                          src={coin.image}
+                          alt={coin.name}
+                          className="size-4 mr-2"
+                        />
                       )}
-                    />
-                    {framework.label}
+                      <span className="font-bold mr-2">{coin.symbol}</span>
+                      <span className="text-muted-foreground text-sm truncate">
+                        {coin.name}
+                      </span>
+                    </div>
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -89,10 +124,17 @@ export const ChartTools = () => {
           </Command>
         </PopoverContent>
       </Popover>
-      <ToggleGroup type="single" className="md:ml-2">
-        <ToggleGroupItem value="week">Week</ToggleGroupItem>
-        <ToggleGroupItem value="month">Month</ToggleGroupItem>
-        <ToggleGroupItem value="year">Year</ToggleGroupItem>
+      <ToggleGroup
+        type="single"
+        className="md:ml-2"
+        value={selectedPeriod}
+        onValueChange={value => {
+          onPeriodChange(value as PeriodType)
+        }}
+      >
+        <ToggleGroupItem value={PeriodType.WEEK}>Week</ToggleGroupItem>
+        <ToggleGroupItem value={PeriodType.MONTH}>Month</ToggleGroupItem>
+        <ToggleGroupItem value={PeriodType.YEAR}>Year</ToggleGroupItem>
       </ToggleGroup>
     </div>
   )

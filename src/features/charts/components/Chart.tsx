@@ -13,8 +13,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useState, useMemo } from "react"
 import { ChartTools } from "./ChartTools"
+import type { PeriodType } from "./ChartContainer"
 
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
@@ -124,18 +124,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export const Chart = () => {
-  const [activeChart, setActiveChart] =
-    useState<keyof typeof chartConfig>("desktop")
+type ChartProps = {
+  selectedPeriod: PeriodType;
+  onPeriodChange: (period: PeriodType) => void;
+}
 
-  const total = useMemo(
-    () => ({
-      desktop: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
-      mobile: chartData.reduce((acc, curr) => acc + curr.mobile, 0),
-    }),
-    [],
-  )
-
+export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
   return (
     <Card>
       <CardHeader className="flex flex-col md:flex-row md:items-center border-b p-0 gap-4">
@@ -145,7 +139,10 @@ export const Chart = () => {
             Showing past market data for CRYPTO from CoinGeko.
           </CardDescription>
         </div>
-        <ChartTools />
+        <ChartTools 
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={onPeriodChange}
+        />
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <ChartContainer
@@ -191,9 +188,9 @@ export const Chart = () => {
               }
             />
             <Line
-              dataKey={activeChart}
+              dataKey="desktop"
               type="monotone"
-              stroke={`hsl(var(--chart-${activeChart === 'desktop' ? '1' : '2'}))`}
+              stroke={`hsl(var(--chart-1))`}
               strokeWidth={2}
               dot={false}
             />
