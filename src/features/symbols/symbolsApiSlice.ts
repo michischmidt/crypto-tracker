@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import {
   saveSymbolsToCache,
   getSymbolsFromCache,
-  isCacheValid,
+  isSymbolsCacheValid,
 } from "@/utils/localstorage-helper"
 
 export type Coin = {
@@ -27,7 +27,7 @@ export type CoinGeckoSymbol = {
 export const symbolsApiSlice = createApi({
   reducerPath: "symbolsApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: env.VITE_COIN_GEKO_OPEN_MARKET_URL,
+    baseUrl: env.VITE_COIN_GECKO_OPEN_MARKET_URL,
   }),
   tagTypes: ["Symbols"],
   endpoints: builder => ({
@@ -38,11 +38,11 @@ export const symbolsApiSlice = createApi({
     getTopCoins: builder.query<Coin[], unknown>({
       async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
         // first check if we have valid cached data
-        if (isCacheValid()) {
+        if (isSymbolsCacheValid()) {
           const cachedData = getSymbolsFromCache()
-          if (cachedData?.symbols && cachedData.symbols.length > 0) {
+          if (cachedData?.data && cachedData.data.length > 0) {
             console.log("Using cached symbols data")
-            return { data: cachedData.symbols }
+            return { data: cachedData.data }
           }
         }
 
@@ -71,11 +71,11 @@ export const symbolsApiSlice = createApi({
         } catch (error) {
           // if API fails, try to use even expired cache as fallback
           const cachedData = getSymbolsFromCache()
-          if (cachedData?.symbols && cachedData.symbols.length > 0) {
+          if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               "API request failed, using expired cached data as fallback",
             )
-            return { data: cachedData.symbols }
+            return { data: cachedData.data }
           }
 
           return {

@@ -1,17 +1,17 @@
-import { useState } from "react"
 import { Chart } from "./Chart"
-
-export enum PeriodType {
-  WEEK = "week",
-  MONTH = "month",
-  YEAR = "year",
-}
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import {
+  selectSelectedTimePeriod,
+  setSelectedTimePeriod,
+} from "@/features/marketData/marketDataSlice"
+import type { TimePeriod } from "@/shared/types/intervals"
 
 export default function ChartContainer() {
-  const [selectedPeriod, setSelectedPeriod] = useState(PeriodType.WEEK)
+  const dispatch = useAppDispatch()
+  const selectedPeriod = useAppSelector(selectSelectedTimePeriod)
 
-  const handlePeriodChange = (period: PeriodType) => {
-    setSelectedPeriod(period)
+  const handlePeriodChange = (period: TimePeriod) => {
+    dispatch(setSelectedTimePeriod(period))
   }
 
   return (

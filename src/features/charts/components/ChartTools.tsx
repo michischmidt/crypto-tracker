@@ -23,11 +23,11 @@ import {
   selectSelectedId,
   setSelectedSymbol,
 } from "@/features/symbols/symbolsSlice"
-import { PeriodType } from "../components/ChartContainer"
+import type { TimePeriod } from "@/shared/types/intervals"
 
 type ChartToolsProps = {
-  selectedPeriod: PeriodType
-  onPeriodChange: (period: PeriodType) => void
+  selectedPeriod: TimePeriod
+  onPeriodChange: (period: TimePeriod) => void
 }
 
 export const ChartTools = ({
@@ -129,12 +129,12 @@ export const ChartTools = ({
         className="md:ml-2"
         value={selectedPeriod}
         onValueChange={value => {
-          onPeriodChange(value as PeriodType)
+          if (value) onPeriodChange(value as TimePeriod)
         }}
       >
-        <ToggleGroupItem value={PeriodType.WEEK}>Week</ToggleGroupItem>
-        <ToggleGroupItem value={PeriodType.MONTH}>Month</ToggleGroupItem>
-        <ToggleGroupItem value={PeriodType.YEAR}>Year</ToggleGroupItem>
+        <ToggleGroupItem value="week">Week</ToggleGroupItem>
+        <ToggleGroupItem value="month">Month</ToggleGroupItem>
+        <ToggleGroupItem value="year">Year</ToggleGroupItem>
       </ToggleGroup>
     </div>
   )

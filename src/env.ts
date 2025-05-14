@@ -11,7 +11,7 @@ export const env = createEnv({
   clientPrefix: "VITE_",
 
   client: {
-    VITE_COIN_GEKO_OPEN_MARKET_URL: z.string().min(1),
+    VITE_COIN_GECKO_OPEN_MARKET_URL: z.string().min(1),
   },
 
   /**
