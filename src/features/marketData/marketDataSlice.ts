@@ -8,7 +8,7 @@ export type MarketDataState = {
 }
 
 const initialState: MarketDataState = {
-  selectedTimePeriod: TimePeriod.YEAR,
+  selectedTimePeriod: TimePeriod.WEEK,
 }
 
 export const marketDataSlice = createSlice({

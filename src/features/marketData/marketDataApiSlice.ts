@@ -2,8 +2,8 @@ import { env } from "@/env"
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type { TimePeriod } from "@/shared/types/intervals"
 import {
-  saveMarketDataToCache,
-  getMarketDataFromCache,
+  saveMarketDataToLocalStorageCache,
+  getMarketDataFromLocalStorageCache,
   isMarketDataCacheValid,
 } from "@/utils/localstorage-helper"
 import { getTimePeriodDays } from "@/utils/interval-helper"
@@ -34,7 +34,10 @@ export const marketDataApiSlice = createApi({
 
         // first check if we have valid cached data
         if (isMarketDataCacheValid(coinId, timePeriod)) {
-          const cachedData = getMarketDataFromCache(coinId, timePeriod)
+          const cachedData = getMarketDataFromLocalStorageCache(
+            coinId,
+            timePeriod,
+          )
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               `Using cached market data for ${coinId} (${timePeriod})`,
@@ -71,12 +74,15 @@ export const marketDataApiSlice = createApi({
             }),
           )
 
-          saveMarketDataToCache(coinId, timePeriod, transformedData)
+          saveMarketDataToLocalStorageCache(coinId, timePeriod, transformedData)
 
           return { data: transformedData }
         } catch (error) {
           // if API fails, try to use even expired cache as fallback
-          const cachedData = getMarketDataFromCache(coinId, timePeriod)
+          const cachedData = getMarketDataFromLocalStorageCache(
+            coinId,
+            timePeriod,
+          )
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
               `API request failed, using expired cached data as fallback for ${coinId} (${timePeriod})`,

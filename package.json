@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "vite",
+    "prebuild": "pnpm run test",
     "test": "vitest --run",
     "type-check": "tsc -b --noEmit"
   },

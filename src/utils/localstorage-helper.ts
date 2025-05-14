@@ -7,16 +7,12 @@ type CachedData<T> = {
   timestamp: number
 }
 
-// Storage keys for different data types
 enum StorageKeys {
   SYMBOLS = "crypto-tracker-symbols",
-  MARKET_DATA = "crypto-tracker-market-data"
+  MARKET_DATA = "crypto-tracker-market-data",
 }
 
-/**
- * Generic function to save data to localStorage with a timestamp
- */
-const saveToCache = (key: string, data: unknown): void => {
+const saveToLocalStorageCache = (key: string, data: unknown): void => {
   try {
     localStorage.setItem(
       key,
@@ -30,17 +26,11 @@ const saveToCache = (key: string, data: unknown): void => {
   }
 }
 
-/**
- * Saves symbols data to localStorage
- */
 export const saveSymbolsToCache = (symbols: Coin[]): void => {
-  saveToCache(StorageKeys.SYMBOLS, symbols)
+  saveToLocalStorageCache(StorageKeys.SYMBOLS, symbols)
 }
 
-/**
- * Generic function to retrieve data from localStorage with timestamp
- */
-const getFromCache = <T>(key: string): CachedData<T> | null => {
+const getFromLocalStorageCache = <T>(key: string): CachedData<T> | null => {
   try {
     const cached = localStorage.getItem(key)
     if (cached) {
@@ -56,11 +46,8 @@ const getFromCache = <T>(key: string): CachedData<T> | null => {
   }
 }
 
-/**
- * Retrieves symbols data from localStorage
- */
 export const getSymbolsFromCache = (): CachedData<Coin[]> | null => {
-  return getFromCache<Coin[]>(StorageKeys.SYMBOLS)
+  return getFromLocalStorageCache<Coin[]>(StorageKeys.SYMBOLS)
 }
 
 /**
@@ -77,9 +64,6 @@ export const isDataCacheValid = <T>(
   return now - cached.timestamp < maxAgeMs
 }
 
-/**
- * Checks if symbols cache is valid (uses default 1 hour cache duration)
- */
 export const isSymbolsCacheValid = (): boolean => {
   const cached = getSymbolsFromCache()
   return isDataCacheValid<Coin[]>(cached)
@@ -92,34 +76,27 @@ const getMarketDataKey = (coinId: string, timePeriod: TimePeriod): string => {
   return `${StorageKeys.MARKET_DATA}-${coinId}-${timePeriod}`
 }
 
-/**
- * Saves market data to localStorage
- */
-export const saveMarketDataToCache = (
+export const saveMarketDataToLocalStorageCache = (
   coinId: string,
   timePeriod: TimePeriod,
   data: MarketData[],
 ): void => {
-  saveToCache(getMarketDataKey(coinId, timePeriod), data)
+  saveToLocalStorageCache(getMarketDataKey(coinId, timePeriod), data)
 }
 
-/**
- * Retrieves market data from localStorage
- */
-export const getMarketDataFromCache = (
+export const getMarketDataFromLocalStorageCache = (
   coinId: string,
   timePeriod: TimePeriod,
 ): CachedData<MarketData[]> | null => {
-  return getFromCache<MarketData[]>(getMarketDataKey(coinId, timePeriod))
+  return getFromLocalStorageCache<MarketData[]>(
+    getMarketDataKey(coinId, timePeriod),
+  )
 }
 
-/**
- * Checks if market data cache is valid (uses default 1 hour cache duration)
- */
 export const isMarketDataCacheValid = (
   coinId: string,
   timePeriod: TimePeriod,
 ): boolean => {
-  const cached = getMarketDataFromCache(coinId, timePeriod)
+  const cached = getMarketDataFromLocalStorageCache(coinId, timePeriod)
   return isDataCacheValid(cached)
 }

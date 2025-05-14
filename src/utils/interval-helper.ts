@@ -9,6 +9,6 @@ export const getTimePeriodDays = (period: TimePeriod): number => {
     case TimePeriod.YEAR:
       return 365
     default:
-      return 365
+      return 7
   }
 }

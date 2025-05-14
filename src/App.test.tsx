@@ -1,154 +1,98 @@
-import { act, screen } from "@testing-library/react"
+import { screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 import { App } from "./App"
 import { renderWithProviders } from "./utils/test-utils"
 
-test("App should have correct initial render", () => {
-  renderWithProviders(<App />)
+vi.mock("./features/charts/components/ChartContainer", () => ({
+  default: () => <div data-testid="chart-container">Mock Chart Container</div>,
+}))
 
-  const countLabel = screen.getByLabelText<HTMLLabelElement>("Count")
+describe("App Component", () => {
+  it("should render the app title correctly", () => {
+    renderWithProviders(<App />)
 
-  const incrementValueInput = screen.getByLabelText<HTMLInputElement>(
-    "Set increment amount",
-  )
-
-  // The app should be rendered correctly
-  expect(screen.getByText(/learn/i)).toBeInTheDocument()
-
-  // Initial state: count should be 0, incrementValue should be 2
-  expect(countLabel).toHaveTextContent("0")
-  expect(incrementValueInput).toHaveValue(2)
-})
-
-test("Increment value and Decrement value should work as expected", async () => {
-  const { user } = renderWithProviders(<App />)
-
-  const countLabel = screen.getByLabelText<HTMLLabelElement>("Count")
-
-  const incrementValueButton =
-    screen.getByLabelText<HTMLButtonElement>("Increment value")
-
-  const decrementValueButton =
-    screen.getByLabelText<HTMLButtonElement>("Decrement value")
-
-  // Click on "+" => Count should be 1
-  await user.click(incrementValueButton)
-  expect(countLabel).toHaveTextContent("1")
-
-  // Click on "-" => Count should be 0
-  await user.click(decrementValueButton)
-  expect(countLabel).toHaveTextContent("0")
-})
-
-test("Add Amount should work as expected", async () => {
-  const { user } = renderWithProviders(<App />)
-
-  const countLabel = screen.getByLabelText<HTMLLabelElement>("Count")
-
-  const incrementValueInput = screen.getByLabelText<HTMLInputElement>(
-    "Set increment amount",
-  )
-
-  const addAmountButton = screen.getByText<HTMLButtonElement>("Add Amount")
-
-  // "Add Amount" button is clicked => Count should be 2
-  await user.click(addAmountButton)
-  expect(countLabel).toHaveTextContent("2")
-
-  // incrementValue is 2, click on "Add Amount" => Count should be 4
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "2")
-  await user.click(addAmountButton)
-  expect(countLabel).toHaveTextContent("4")
-
-  // [Negative number] incrementValue is -1, click on "Add Amount" => Count should be 3
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "-1")
-  await user.click(addAmountButton)
-  expect(countLabel).toHaveTextContent("3")
-})
-
-it("Add Async should work as expected", async () => {
-  vi.useFakeTimers({ shouldAdvanceTime: true })
-
-  const { user } = renderWithProviders(<App />)
-
-  const addAsyncButton = screen.getByText<HTMLButtonElement>("Add Async")
-
-  const countLabel = screen.getByLabelText<HTMLLabelElement>("Count")
-
-  const incrementValueInput = screen.getByLabelText<HTMLInputElement>(
-    "Set increment amount",
-  )
-
-  await user.click(addAsyncButton)
-
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(500)
+    // Check that the app title contains both "Mesh" and "Crypto Tracker"
+    expect(screen.getByText("Mesh")).toBeInTheDocument()
+    expect(screen.getByText("- Crypto Tracker")).toBeInTheDocument()
   })
 
-  // "Add Async" button is clicked => Count should be 2
-  expect(countLabel).toHaveTextContent("2")
+  it("should render tabs with Chart selected by default", () => {
+    renderWithProviders(<App />)
 
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "2")
+    const chartTab = screen.getByRole("tab", { name: /chart/i })
+    const walletTab = screen.getByRole("tab", { name: /wallet/i })
 
-  await user.click(addAsyncButton)
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(500)
+    // Tabs should be in the document
+    expect(chartTab).toBeInTheDocument()
+    expect(walletTab).toBeInTheDocument()
+
+    // Chart tab should be selected by default
+    expect(chartTab).toHaveAttribute("aria-selected", "true")
+    expect(walletTab).toHaveAttribute("aria-selected", "false")
+
+    // Chart content should be visible
+    expect(screen.getByTestId("chart-container")).toBeInTheDocument()
+
+    // Wallet content should not be visible yet
+    expect(screen.queryByText("Metamask Wallet TBD.")).toBeNull()
   })
 
-  // incrementValue is 2, click on "Add Async" => Count should be 4
-  expect(countLabel).toHaveTextContent("4")
+  it("should switch between tabs when clicked", async () => {
+    const { user } = renderWithProviders(<App />)
 
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "-1")
-  await user.click(addAsyncButton)
+    const chartTab = screen.getByRole("tab", { name: /chart/i })
+    const walletTab = screen.getByRole("tab", { name: /wallet/i })
 
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(500)
+    // Click on Wallet tab
+    await user.click(walletTab)
+
+    // Wallet tab should now be selected
+    expect(walletTab).toHaveAttribute("aria-selected", "true")
+    expect(chartTab).toHaveAttribute("aria-selected", "false")
+
+    // Wallet content should be visible
+    expect(screen.getByText("Metamask Wallet TBD.")).toBeInTheDocument()
+
+    // Chart content should not be visible
+    expect(screen.queryByTestId("chart-container")).toBeNull()
+
+    // Click back on Chart tab
+    await user.click(chartTab)
+
+    // Chart tab should now be selected again
+    expect(chartTab).toHaveAttribute("aria-selected", "true")
+    expect(walletTab).toHaveAttribute("aria-selected", "false")
+
+    // Chart content should be visible again
+    expect(screen.getByTestId("chart-container")).toBeVisible()
+
+    // Wallet content should no longer be visible
+    expect(screen.queryByText("Metamask Wallet TBD.")).toBeNull()
   })
 
-  // [Negative number] incrementValue is -1, click on "Add Async" => Count should be 3
-  expect(countLabel).toHaveTextContent("3")
+  it("should have responsive layout classes", () => {
+    renderWithProviders(<App />)
 
-  vi.useRealTimers()
-})
+    // Check that responsive classes are applied to main container
+    const appDiv = screen.getByText("Mesh").closest("div.App")
+    expect(appDiv).toHaveClass(
+      "flex",
+      "flex-col",
+      "items-center",
+      "justify-center",
+    )
 
-test("Add If Odd should work as expected", async () => {
-  const { user } = renderWithProviders(<App />)
+    // Check that the main title has the proper classes for responsive design
+    const title = screen.getByText("Mesh").closest("h1")
+    expect(title).toHaveClass("text-3xl", "md:text-4xl", "lg:text-5xl")
 
-  const countLabel = screen.getByLabelText<HTMLLabelElement>("Count")
+    // Check that the parent container has proper width classes
+    const meshElement = screen.getAllByText("Mesh")[0]
+    const parentDiv = meshElement.closest("div")
+    expect(parentDiv).not.toBeNull()
 
-  const addIfOddButton = screen.getByText<HTMLButtonElement>("Add If Odd")
-
-  const incrementValueInput = screen.getByLabelText<HTMLInputElement>(
-    "Set increment amount",
-  )
-
-  const incrementValueButton =
-    screen.getByLabelText<HTMLButtonElement>("Increment value")
-
-  // "Add If Odd" button is clicked => Count should stay 0
-  await user.click(addIfOddButton)
-  expect(countLabel).toHaveTextContent("0")
-
-  // Click on "+" => Count should be updated to 1
-  await user.click(incrementValueButton)
-  expect(countLabel).toHaveTextContent("1")
-
-  // "Add If Odd" button is clicked => Count should be updated to 3
-  await user.click(addIfOddButton)
-  expect(countLabel).toHaveTextContent("3")
-
-  // incrementValue is 1, click on "Add If Odd" => Count should be updated to 4
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "1")
-  await user.click(addIfOddButton)
-  expect(countLabel).toHaveTextContent("4")
-
-  // click on "Add If Odd" => Count should stay 4
-  await user.clear(incrementValueInput)
-  await user.type(incrementValueInput, "-1")
-  await user.click(addIfOddButton)
-  expect(countLabel).toHaveTextContent("4")
+    const parentContainer = parentDiv?.querySelector("div.w-full")
+    expect(parentContainer).not.toBeNull()
+    expect(parentContainer).toHaveClass("max-w-5xl", "mx-auto")
+  })
 })
