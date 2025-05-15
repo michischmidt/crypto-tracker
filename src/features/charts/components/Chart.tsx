@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   CartesianGrid,
   Line,
@@ -25,7 +26,8 @@ import {
   selectSelectedSymbol,
   selectSelectedId,
 } from "@/features/symbols/symbolsSlice";
-import { Loader2 } from "lucide-react";
+import { AlertOctagon, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const chartConfig = {
   views: {
@@ -53,6 +55,24 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
     coinId: selectedId,
     timePeriod: selectedPeriod,
   });
+
+  useEffect(() => {
+    if (error && typeof error === "object" && "status" in error) {
+      const errorStatus = error.status as string;
+
+      if (errorStatus === "RATE_LIMIT_ERROR") {
+        toast.error("Too many requests", {
+          description: (
+            <span className="text-primary">
+              API rate limit exceeded. Please try again later.
+            </span>
+          ),
+          icon: <AlertOctagon className="text-destructive" />,
+          duration: 5000,
+        });
+      }
+    }
+  }, [error]);
 
   const formattedData =
     marketData?.map(item => ({
@@ -82,7 +102,8 @@ export const Chart = ({ selectedPeriod, onPeriodChange }: ChartProps) => {
           </div>
         ) : error ? (
           <div className="text-destructive flex h-[400px] items-center justify-center">
-            Error loading market data. Please try again.
+            Error loading market data. Please try again later or different
+            symbol.
           </div>
         ) : formattedData.length === 0 ? (
           <div className="text-muted-foreground flex h-[400px] items-center justify-center">

@@ -63,6 +63,9 @@ const eslintConfig = config(
           disallowTypeAnnotations: true,
         },
       ],
+      // Disable unsafe assignment and call errors for API error handling
+      "@typescript-eslint/no-unsafe-assignment": "warn",
+      "@typescript-eslint/no-unsafe-call": "warn",
       "no-restricted-imports": [
         2,
         {

@@ -1,5 +1,9 @@
 import { env } from "@/env";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 import type { TimePeriod } from "@/shared/types/intervals";
 import {
   saveMarketDataToLocalStorageCache,
@@ -29,10 +33,14 @@ export const marketDataApiSlice = createApi({
       MarketData[],
       { coinId: string; timePeriod: TimePeriod }
     >({
-      async queryFn(arg, _queryApi, _extraOptions, fetchWithBQ) {
+      async queryFn(
+        arg: { coinId: string; timePeriod: TimePeriod },
+        _queryApi,
+        _extraOptions,
+        fetchWithBQ,
+      ) {
         const { coinId, timePeriod } = arg;
 
-        // first check if we have valid cached data
         if (isMarketDataCacheValid(coinId, timePeriod)) {
           const cachedData = getMarketDataFromLocalStorageCache(
             coinId,
@@ -49,23 +57,11 @@ export const marketDataApiSlice = createApi({
         // if no valid cache, fetch from API
         try {
           const days = getTimePeriodDays(timePeriod);
+          const url = `coins/${coinId}/market_chart?vs_currency=usd&days=${days}&interval=daily`;
 
-          // fetch day to day market data
-          const response = await fetchWithBQ(
-            "coins/" +
-              coinId +
-              "/market_chart?vs_currency=usd&days=" +
-              days.toString() +
-              "&interval=daily",
-          );
-
-          if (response.error) {
-            return { error: response.error };
-          }
-
+          const response = await fetchWithBQ(url);
           const data = response.data as CoinGeckoMarketChartResponse;
 
-          // transform in our marke data format for chart
           const transformedData = data.prices.map(
             ([timestamp, price]): MarketData => ({
               timestamp,
@@ -82,14 +78,14 @@ export const marketDataApiSlice = createApi({
 
           return { data: transformedData };
         } catch (error) {
-          // if API fails, try to use even expired cache as fallback
+          // try using expired cache as fallback
           const cachedData = getMarketDataFromLocalStorageCache(
             coinId,
             timePeriod,
           );
           if (cachedData?.data && cachedData.data.length > 0) {
             console.log(
-              `API request failed, using expired cached data as fallback for ${coinId} (${timePeriod})`,
+              `API request failed, using expired cached data for ${coinId}`,
             );
             return { data: cachedData.data };
           }
@@ -97,13 +93,17 @@ export const marketDataApiSlice = createApi({
           return {
             error: {
               status: "FETCH_ERROR",
-              error: String(error),
-            },
+              error: error instanceof Error ? error.message : String(error),
+              meta:
+                error instanceof Error && error.message.includes("429")
+                  ? { httpStatus: 429, reason: "RATE_LIMIT" }
+                  : undefined,
+            } as FetchBaseQueryError,
           };
         }
       },
       providesTags: (_result, _error, arg) => [
-        { type: "MarketData" as const, id: arg.coinId + "-" + arg.timePeriod },
+        { type: "MarketData" as const, id: `${arg.coinId}-${arg.timePeriod}` },
       ],
     }),
   }),
