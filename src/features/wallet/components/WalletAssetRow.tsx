@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { useAccount, useBalance } from "wagmi";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,7 +36,7 @@ export const WalletAssetRow = ({
     onValueChange(contractAddress, value);
   }, [value, contractAddress, onValueChange]);
 
-  const isLoading = balanceLoading ?? priceLoading;
+  const isLoading = balanceLoading || priceLoading;
 
   return (
     <TableRow>

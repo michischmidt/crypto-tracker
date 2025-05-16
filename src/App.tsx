@@ -20,7 +20,7 @@ export const App = () => (
     </h1>
 
     <div className="mx-auto w-full max-w-5xl">
-      <Tabs defaultValue={AppTab.WALLET} className="w-full">
+      <Tabs defaultValue={AppTab.CHART} className="w-full">
         <TabsList className="mb-2 w-full justify-center">
           <TabsTrigger value={AppTab.CHART}>Chart</TabsTrigger>
           <TabsTrigger value={AppTab.WALLET}>Wallet</TabsTrigger>

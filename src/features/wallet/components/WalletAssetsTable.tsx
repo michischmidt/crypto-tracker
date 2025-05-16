@@ -217,7 +217,7 @@ export const WalletAssetsTable = () => {
                   <WalletAssetRow
                     key={token.contractAddress}
                     contractAddress={token.contractAddress}
-                    chainId={chainId}
+                    chainId={chainId ?? undefined}
                     onValueChange={updateTokenValue}
                   />
                 ))
