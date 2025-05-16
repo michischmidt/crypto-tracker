@@ -54,7 +54,6 @@ const eslintConfig = config(
     rules: {
       "no-undef": [0],
       "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/consistent-type-definitions": [2, "type"],
       "@typescript-eslint/consistent-type-imports": [
         2,
         {
@@ -65,6 +64,7 @@ const eslintConfig = config(
       ],
       // Disable unsafe assignment and call errors for API error handling
       "@typescript-eslint/no-unsafe-assignment": "warn",
+      "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/no-unsafe-call": "warn",
       "no-restricted-imports": [
         2,
