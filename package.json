@@ -17,6 +17,7 @@
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
+    "@metamask/sdk": "^0.32.1",
     "@radix-ui/react-dialog": "^1.1.13",
     "@radix-ui/react-popover": "^1.1.13",
     "@radix-ui/react-slot": "^1.2.2",
@@ -26,6 +27,9 @@
     "@reduxjs/toolkit": "^2.6.1",
     "@t3-oss/env-core": "^0.13.4",
     "@tailwindcss/vite": "^4.1.6",
+    "@tanstack/react-query": "^5.76.1",
+    "@tanstack/react-query-devtools": "^5.76.1",
+    "alchemy-sdk": "^3.5.8",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -39,6 +43,8 @@
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.6",
+    "viem": "2.x",
+    "wagmi": "^2.15.3",
     "zod": "^3.24.4"
   },
   "devDependencies": {

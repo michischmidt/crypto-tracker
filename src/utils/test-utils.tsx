@@ -3,8 +3,10 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { PropsWithChildren, ReactElement } from "react";
 import { Provider } from "react-redux";
+import { WagmiConfig } from "wagmi";
 import type { AppStore, RootState } from "../app/store";
 import { makeStore } from "../app/store";
+import { wagmiConfig } from "../wagmiConfig";
 
 /**
  * This type extends the default options for
@@ -53,7 +55,9 @@ export const renderWithProviders = (
   } = extendedRenderOptions;
 
   const Wrapper = ({ children }: PropsWithChildren) => (
-    <Provider store={store}>{children}</Provider>
+    <WagmiConfig config={wagmiConfig}>
+      <Provider store={store}>{children}</Provider>
+    </WagmiConfig>
   );
 
   // Return an object with the store and all of RTL's query functions

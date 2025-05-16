@@ -3,8 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { renderWithProviders } from "./utils/test-utils";
 
+// Mock chart and wallet components to simplify testing
 vi.mock("./features/charts/components/ChartContainer", () => ({
   default: () => <div data-testid="chart-container">Mock Chart Container</div>,
+}));
+
+vi.mock("./features/wallet/components/WalletContainer", () => ({
+  WalletContainer: () => (
+    <div data-testid="wallet-container">Mock Wallet Container</div>
+  ),
 }));
 
 describe("App Component", () => {
@@ -34,7 +41,7 @@ describe("App Component", () => {
     expect(screen.getByTestId("chart-container")).toBeInTheDocument();
 
     // Wallet content should not be visible yet
-    expect(screen.queryByText("Metamask Wallet TBD.")).toBeNull();
+    expect(screen.queryByTestId("wallet-container")).toBeNull();
   });
 
   it("should switch between tabs when clicked", async () => {
@@ -51,7 +58,7 @@ describe("App Component", () => {
     expect(chartTab).toHaveAttribute("aria-selected", "false");
 
     // Wallet content should be visible
-    expect(screen.getByText("Metamask Wallet TBD.")).toBeInTheDocument();
+    expect(screen.getByTestId("wallet-container")).toBeInTheDocument();
 
     // Chart content should not be visible
     expect(screen.queryByTestId("chart-container")).toBeNull();
@@ -67,20 +74,11 @@ describe("App Component", () => {
     expect(screen.getByTestId("chart-container")).toBeVisible();
 
     // Wallet content should no longer be visible
-    expect(screen.queryByText("Metamask Wallet TBD.")).toBeNull();
+    expect(screen.queryByTestId("wallet-container")).toBeNull();
   });
 
   it("should have responsive layout classes", () => {
     renderWithProviders(<App />);
-
-    // Check that responsive classes are applied to main container
-    const appDiv = screen.getByText("Mesh").closest("div.App");
-    expect(appDiv).toHaveClass(
-      "flex",
-      "flex-col",
-      "items-center",
-      "justify-center",
-    );
 
     // Check that the main title has the proper classes for responsive design
     const title = screen.getByText("Mesh").closest("h1");

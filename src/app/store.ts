@@ -5,6 +5,7 @@ import { symbolsApiSlice } from "../features/symbols/symbolsApiSlice";
 import { symbolsSlice } from "../features/symbols/symbolsSlice";
 import { marketDataApiSlice } from "../features/marketData/marketDataApiSlice";
 import { marketDataSlice } from "../features/marketData/marketDataSlice";
+import { walletIntegrationSlice } from "../features/walletIntegration/walletIntegrationSlice";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
@@ -13,6 +14,7 @@ const rootReducer = combineSlices(
   symbolsSlice,
   marketDataApiSlice,
   marketDataSlice,
+  walletIntegrationSlice,
 );
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>;
